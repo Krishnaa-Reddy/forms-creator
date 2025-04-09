@@ -1,0 +1,4 @@
+<mat-form-field>
+    <mat-label>{{ element()?.label || 'Ask for Name' }}</mat-label>
+    <textarea (click)="$event.stopPropagation()" [required]="element()?.required" matInput [placeholder]="element()?.placeholder || 'Enter Some Long Text'"></textarea>
+</mat-form-field>

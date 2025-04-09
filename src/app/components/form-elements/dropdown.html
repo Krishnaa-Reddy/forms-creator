@@ -1,0 +1,10 @@
+<mat-form-field class="w-full">
+    <mat-label>{{ element()?.label || 'Label' }}</mat-label>
+    <mat-select 
+    (click)="$event.stopPropagation()"
+    [placeholder]="element()?.placeholder || 'Enter a value'" [required]="element()?.required">
+      @for (food of foods; track food) {
+        <mat-option [value]="food.value">{{food.viewValue}}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>

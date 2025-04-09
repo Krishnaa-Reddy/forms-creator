@@ -1,0 +1,4 @@
+<mat-form-field class="w-full">
+    <mat-label>{{ element()?.label || 'Label' }}</mat-label>
+    <input (click)="$event.stopPropagation()" [required]="element()?.required" matInput [placeholder]="element()?.placeholder || 'Enter a value'" />
+</mat-form-field>

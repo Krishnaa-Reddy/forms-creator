@@ -1,0 +1,9 @@
+<mat-checkbox
+  [(ngModel)]="checked"
+  [(indeterminate)]="indeterminate"
+  [labelPosition]="labelPosition()"
+  [disabled]="disabled()"
+  (click)="$event.stopPropagation()"
+>
+  {{ element()?.label || 'Label' }}
+</mat-checkbox>
