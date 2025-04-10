@@ -1,12 +1,16 @@
 <section class="w-screen screen-bg h-screen flex flex-col">
-  <header
-    class="flex justify-between items-center p-4 border-b-1 border-gray-300"
-  >
-    <h2 class="font-bold text-2xl text-center">Forms Creator</h2>
-    <button mat-raised-button (click)="exportForm()">
-      <mat-icon>download</mat-icon>
-      Export Form
-    </button>
+  <header class="flex justify-between items-center p-2 px-6 border-b-1 border-gray-300">
+    <div>
+      <h2 class="text-xl font-bold m-0">Form Generator</h2>
+      <!-- <h6 class="text-sm">
+        Generate an Angular Material based custom form component with Tailwind
+        CSS styling.
+      </h6> -->
+    </div>
+    <a mat-button href="https://github.com/Krishnaa-Reddy" target="_blank">
+      <mat-icon svgIcon="github"></mat-icon>
+      GitHub
+    </a>
   </header>
 
   <main class="p-1 flex gap-1 justify-between h-full">
@@ -33,152 +37,173 @@
     </mat-card>
 
     <mat-card appearance="outlined" class="w-4/6">
-      <mat-card-header class="flex justify-between items-center mb-2">
-        <mat-card-title>
-          Form Canvas
+      <mat-card-header class="flex flex-col mb-2">
+        <mat-card-title class="flex-1"> Form Canvas </mat-card-title>
+        <div class="flex justify-between items-center mt-4">
           <mat-button-toggle-group
-            value="editor"
-            (valueChange)="onEditorModeChange($event)"
-            name="userOption"
-            aria-label="User Option"
-          >
-            <mat-button-toggle value="editor">Editor</mat-button-toggle>
-            <mat-button-toggle value="preview">Preview</mat-button-toggle>
-          </mat-button-toggle-group>
-        </mat-card-title>
+          value="editor"
+          (valueChange)="onEditorModeChange($event)"
+          name="userOption"
+          aria-label="User Option"
+        >
+          <mat-button-toggle value="editor">Editor</mat-button-toggle>
+          <mat-button-toggle value="preview">Preview</mat-button-toggle>
+        </mat-button-toggle-group>
         @if (editorModeOn()) {
-          <button (click)="addRow()" mat-flat-button>Add Row</button>
+        <button (click)="addRow()" mat-flat-button>
+          <mat-icon>add</mat-icon>
+          Add Row
+        </button>
+        } @else {
+        <button mat-flat-button (click)="openDialog()">
+          <mat-icon>fullscreen</mat-icon>
+          Preview Code
+        </button>
         }
-      </mat-card-header>
-      <mat-divider />
-      <mat-card-content class="overflow-auto mt-2" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="dropRows($event)">
+        </div>
 
+      </mat-card-header>
+      <mat-card-content
+        class="overflow-auto h-[calc(100vh-200px)] mt-2"
+        cdkDropList
+        cdkDropListOrientation="horizontal"
+        (cdkDropListDropped)="dropRows($event)"
+      >
         @if(editorModeOn()){
-          <div class="example-custom-placeholder flex-1" *cdkDragPlaceholder></div>
-          @for (item of formCanvas(); track $index; let index = $index) {
-            <mat-card
-            [id]="getEditorRowId(index)"
-            cdkDropList
-            cdkDrag
-            cdkDropListConnectedTo="form-elements"
-            [cdkDropListData]="item"
-            [cdkDropListEnterPredicate]="noReturnPredicate"
-            (cdkDropListDropped)="droppedFromNavList($event)"
-            appearance="outlined"
-            style="border-style: dashed"
-            class="w-full mt-2"
-          >
-          <div class="example-custom-placeholder flex-1" *cdkDragPlaceholder></div>
-            <mat-card-header class="flex justify-between items-center">
-              <mat-card-subtitle
-                style="display: flex"
-                class="gap-1 items-center text-gray-500"
-              >
-                <button
-                  cdkDragHandle
-                  mat-icon-button
-                  aria-label="Example icon button with a vertical three dot icon"
-                >
-                  <mat-icon class="cursor-grab">drag_handle</mat-icon>
-                </button>
-                Row
-                <button
-                mat-icon-button
-              >
-              <mat-icon matTooltipPosition="above" matTooltip="Only 3 field elements allowed for a single row">info</mat-icon>
-              </button>
-              </mat-card-subtitle>
+        <div
+          class="example-custom-placeholder flex-1"
+          *cdkDragPlaceholder
+        ></div>
+        @for (item of formCanvas(); track $index; let index = $index) {
+        <mat-card
+          [id]="getEditorRowId(index)"
+          cdkDropList
+          cdkDrag
+          cdkDropListConnectedTo="form-elements"
+          [cdkDropListData]="item"
+          [cdkDropListEnterPredicate]="noReturnPredicate"
+          (cdkDropListDropped)="droppedFromNavList($event)"
+          class="w-full mt-2"
+        >
+          <div
+            class="example-custom-placeholder flex-1"
+            *cdkDragPlaceholder
+          ></div>
+          <mat-card-header class="flex justify-between items-center">
+            <mat-card-subtitle
+              style="display: flex"
+              class="gap-1 items-center text-gray-500"
+            >
               <button
-                (click)="deleteRow(index)"
+                cdkDragHandle
                 mat-icon-button
                 aria-label="Example icon button with a vertical three dot icon"
               >
-                <mat-icon>cancel</mat-icon>
+                <mat-icon class="cursor-grab">drag_handle</mat-icon>
               </button>
-            </mat-card-header>
-            <mat-card-content style="display: flex" class="flex-wrap gap-2 mt-2">
-              @for (element of item; track $index; let elementIndex = $index) {
-              <div cdkDrag [cdkDragData]="element" class="min-w-[200px] flex-1">
-                <div class="example-custom-placeholder flex-1" *cdkDragPlaceholder></div>
-                <mat-card
-                  (click)="handleSelection({ index, elementIndex, element })"
-                  [ngClass]="{
-                    'editor-element-selected': element.selected
-                  }"
-                  appearance="outlined"
-                  class="min-h-[180px] editor-element"
-                >
-                  <mat-card-header class="flex justify-between items-center">
-                    <mat-card-subtitle>{{ element.type }}</mat-card-subtitle>
-                    <button
-                      (click)="deleteElement(index, elementIndex, $event)"
-                      mat-icon-button
-                      aria-label="Example icon button with a vertical three dot icon"
-                    >
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </mat-card-header>
-                  <mat-card-content
-                    class="flex justify-center gap-1 items-center mt-2"
-                  >
-                    <ng-container
-                      *ngComponentOutlet="
-                        getFormElementComponent(element.type);
-                        inputs: { element: element }
-                      "
-                    />
-                  </mat-card-content>
-                </mat-card>
-              </div>
-  
-              } @empty {
-              <mat-card
-                cdkDrag
-                appearance="outlined"
-                style="border-style: dashed"
-                class="w-full mt-2"
+              Row
+            </mat-card-subtitle>
+            <div class="flex justify-between items-center">
+              <button
+              matTooltipPosition="above"
+              matTooltip="Delete Row"
+              (click)="deleteRow(index)"
+              mat-icon-button
+              aria-label="Example icon button with a vertical three dot icon"
+            >
+              <mat-icon>cancel</mat-icon>
+            </button>
+              <mat-icon
+                matTooltipPosition="above"
+                matTooltip="Only 3 field elements allowed for a single row"
+                >info</mat-icon
               >
+            </div>
+          </mat-card-header>
+          <mat-card-content style="display: flex" class="flex-wrap gap-2 mt-2">
+            @for (element of item; track $index; let elementIndex = $index) {
+            <div cdkDrag [cdkDragData]="element" class="min-w-[200px] flex-1">
+              <div
+                class="example-custom-placeholder flex-1"
+                *cdkDragPlaceholder
+              ></div>
+              <mat-card
+                (click)="handleSelection({ index, elementIndex, element })"
+                [ngClass]="{
+                  'editor-element-selected': element.selected
+                }"
+                appearance="outlined"
+                class="min-h-[180px] editor-element"
+              >
+                <mat-card-header class="flex justify-between items-center">
+                  <mat-card-subtitle>{{ element.type }}</mat-card-subtitle>
+                  <button
+                    (click)="deleteElement(index, elementIndex, $event)"
+                    mat-icon-button
+                    aria-label="Example icon button with a vertical three dot icon"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </mat-card-header>
                 <mat-card-content
-                  class="flex justify-center gap-1 text-center items-center font-semibold text-gray-700"
+                  class="flex justify-center gap-1 items-center mt-2"
                 >
-                  Drag and drop form elements here
+                  <ng-container
+                    *ngComponentOutlet="
+                      getFormElementComponent(element.type);
+                      inputs: { element: element }
+                    "
+                  />
                 </mat-card-content>
               </mat-card>
-              } 
-            </mat-card-content>
-          </mat-card>
-           } @empty {
-            <div
-              class="flex flex-col justify-center items-center h-60 w-full text-center font-semibold text-gray-700"
+            </div>
+
+            } @empty {
+            <mat-card
+              cdkDrag
+              appearance="outlined"
+              style="border-style: dashed"
+              class="w-full mt-2"
             >
-            <p>Add a row to the canvas to proceed.</p>
-            </div>
-    
+              <mat-card-content
+                class="flex justify-center gap-1 text-center items-center font-semibold text-gray-700"
+              >
+                Drag and drop form elements here
+              </mat-card-content>
+            </mat-card>
             }
-        } @else {
-          @for (item of _filteredFormCanvas(); track $index; let index = $index) {
-            <div class="flex flex-wrap gap-2 mt-2" #formLayout>
-              @for (element of item; track $index; let elementIndex = $index) {
-              <div class="min-w-[200px] flex-1">
-                <ng-container
-                  *ngComponentOutlet="
-                    getFormElementComponent(element.type);
-                    inputs: { element: element }
-                  "
-                />
-              </div>
-    
-              }
-            </div>
-          } @empty {
-            <div
-              class="flex flex-col justify-center items-center h-60 w-full text-center font-semibold text-gray-700"
-            >
-            <p>Nothing to show here.</p>
-            </div>
-    
-            }
-        }
+          </mat-card-content>
+        </mat-card>
+        } @empty {
+        <div
+          class="flex flex-col justify-center items-center h-60 w-full text-center font-semibold text-gray-700"
+        >
+          <p>Add a row to the canvas to proceed.</p>
+        </div>
+
+        } } @else { @for (item of _filteredFormCanvas(); track $index; let index
+        = $index) {
+        <div class="flex flex-wrap gap-2 mt-2">
+          @for (element of item; track $index; let elementIndex = $index) {
+          <div class="min-w-[200px] flex-1">
+            <ng-container
+              *ngComponentOutlet="
+                getFormElementComponent(element.type);
+                inputs: { element: element }
+              "
+            />
+          </div>
+
+          }
+        </div>
+        } @empty {
+        <div
+          class="flex flex-col justify-center items-center h-60 w-full text-center font-semibold text-gray-700"
+        >
+          <p>Nothing to show here.</p>
+        </div>
+
+        } }
       </mat-card-content>
     </mat-card>
 
@@ -222,3 +247,6 @@
     </mat-card>
   </main>
 </section>
+
+<!-- <app-button-generator />
+<app-custom-form /> -->

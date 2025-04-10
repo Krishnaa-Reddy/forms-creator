@@ -1,12 +1,9 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { formElements } from '../../app.component';
 
@@ -49,23 +46,6 @@ export class TextArea {
 })
 export class DateComponent {
   element = input<FormElementField>();
-}
-
-@Component({
-  selector: 'app-checkbox',
-  imports: [MatInputModule, MatFormFieldModule, MatIconModule, MatCheckboxModule, MatRadioModule,FormsModule ],
-  templateUrl: './checkbox.html',
-})
-export class Checkbox {
-  element = input<FormElementField>();
-  checked = false;
-  indeterminate = false;
-  labelPosition() {
-    return 'before' as const;
-  }
-  disabled() {
-    return false;
-  }
 }
 
 @Component({

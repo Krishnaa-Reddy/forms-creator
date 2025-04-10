@@ -1,0 +1,26 @@
+
+<h2 mat-dialog-title>Code Preview</h2>
+<mat-dialog-content>
+    <app-code-content [fullComponentCode]="_generatedFormComponentCode"></app-code-content>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancel</button>
+  <button
+  mat-flat-button
+  (click)="downloadFullComponent()"
+>
+  <mat-icon>download</mat-icon>
+  Export Form
+</button>
+  <button
+  matTooltip="Copy code to clipboard"
+  (cdkCopyToClipboardCopied)="isCopied($event)"
+  [cdkCopyToClipboard]="_generatedFormComponentCode"
+  [cdkCopyToClipboardAttempts]="2"
+  mat-icon-button
+  [mat-dialog-close]="true"
+  
+>
+  <mat-icon>content_copy</mat-icon>
+</button>
+</mat-dialog-actions>

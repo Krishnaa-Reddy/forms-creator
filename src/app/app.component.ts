@@ -1,3 +1,4 @@
+import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import {
   CdkDrag,
   CdkDragDrop,
@@ -12,9 +13,8 @@ import {
   Component,
   computed,
   effect,
-  ElementRef,
-  signal,
-  viewChild
+  inject,
+  signal
 } from '@angular/core';
 import {
   FormControl,
@@ -26,14 +26,27 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogActions,
+  MatDialogClose,
+  MatDialogContent,
+  MatDialogRef,
+  MatDialogTitle
+} from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DomSanitizer } from '@angular/platform-browser';
+import { fullComponentCode2 } from './_utils';
+import { ButtonGeneratorComponent } from './components/button-generator.component';
+import { CodeContentComponent } from './components/code-content.component';
 import {
-  Checkbox,
   DateComponent,
   Dropdown,
   FormElementField,
@@ -42,6 +55,7 @@ import {
   TextArea,
   TextField
 } from './components/form-elements/form-elements.component';
+import { CustomFormComponent } from './components/test.component';
 
 export const formElements = [
   {
@@ -57,10 +71,6 @@ export const formElements = [
     icon: 'calendar_today',
   },
   {
-    type: 'Checkbox',
-    icon: 'check_box',
-  },
-  {
     type: 'Dropdown',
     icon: 'arrow_drop_down_circle',
   }
@@ -73,13 +83,21 @@ type SelectedItem = {
 }
 
 
+export interface DialogData {
+  animal: string;
+  name: string;
+}
+
+
 @Component({
   selector: 'app-root',
   imports: [
     MatButtonModule,
+    CustomFormComponent,
     MatTooltipModule,
     ReactiveFormsModule,
     CommonModule,
+    FormsModule,
     NgComponentOutlet,
     MatIconModule,
     CdkDragPlaceholder,
@@ -93,6 +111,7 @@ type SelectedItem = {
     MatListModule,
     MatCardModule,
     FormsModule,
+    ButtonGeneratorComponent
   ],
   providers: [
     {
@@ -117,21 +136,25 @@ export class AppComponent {
     }));
   });
 
-  formLayout = viewChild<ElementRef>('formLayout');
 
-  exportForm() {
-    if(this.formLayout()) {
-      // console.log(this.formLayout()?.nativeElement.innerHTML);
-    } 
+  private matIconRegistry = inject(MatIconRegistry);
+  private domSanitizer = inject(DomSanitizer);
+
+  readonly dialog = inject(MatDialog);
+
+  openDialog(): void {
+    this.dialog.open(CodeContentDialog, {
+      data: { formCanvas: this._filteredFormCanvas() },
+      minWidth: '800px',
+      position: { top: '50px' },
+    });
   }
-
   editorModeOn = signal<boolean>(false);
   
   formElementComponents = signal<Partial<Record<FormElementType, any>>>({
     'Text Field': TextField,
     'Text Area': TextArea,
     Date: DateComponent,
-    Checkbox: Checkbox,
     Dropdown: Dropdown,
   });
 
@@ -144,6 +167,13 @@ export class AppComponent {
   formCanvas = signal<FormElementField[][]>([]);
 
   _filteredFormCanvas = computed(() => this.formCanvas().filter(row => row.length))
+
+  exportForm() {
+    if(this._filteredFormCanvas().length > 0) {
+      console.log(this._filteredFormCanvas());
+    } 
+  }
+
 
   _selectedItem = computed(() => {
     return this.formCanvas().reduce<SelectedItem | undefined>((acc, row, index) => {
@@ -196,6 +226,8 @@ export class AppComponent {
   }
 
   constructor() {
+    this.matIconRegistry.addSvgIcon('github', this.domSanitizer.bypassSecurityTrustResourceUrl('github-24.svg'));
+    
     effect(() => {
       const selectedItem = this._selectedItem();
       if (selectedItem) {
@@ -271,10 +303,6 @@ export class AppComponent {
   }
 
   deleteRow(index: number) {
-    // const selectedItem = this.selectedItem();
-    // if(selectedItem && selectedItem.index === index) {
-    //   this.selectedItem.set(undefined);
-    // }
     this.formCanvas.update((prev) => prev.filter((_, i) => i !== index));
   }
 
@@ -309,6 +337,63 @@ export class AppComponent {
         );
     });
 
+  }
+
+}
+
+
+@Component({
+  selector: 'dialog-overview-example-dialog',
+  templateUrl: 'dialog-content.html',
+  imports: [
+    MatFormFieldModule,
+    CdkCopyToClipboard,
+    MatIconModule,
+    MatTooltipModule,
+    MatInputModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogTitle,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogClose,
+    CodeContentComponent,
+    // NgOptimizedImage
+  ],
+})
+export class CodeContentDialog {
+  private _snackBar = inject(MatSnackBar);
+  readonly dialogRef = inject(MatDialogRef<CodeContentDialog>);
+  readonly data = inject<{
+    formCanvas: FormElementField[][];
+  }>(MAT_DIALOG_DATA);
+
+  _generatedFormComponentCode = fullComponentCode2(this.data.formCanvas);
+
+  copyFullComponent() {
+    navigator.clipboard.writeText(this._generatedFormComponentCode);
+    alert('Full component copied!');
+  }
+
+
+  downloadFullComponent() {
+    const blob = new Blob([this._generatedFormComponentCode], {
+      type: 'text/typescript',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'custom-form.component.ts';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  isCopied(event: boolean) {
+    if (event) {
+      this._snackBar.open('Copied to clipboard!', 'Dismiss', {
+        duration: 2000,
+      });
+    }
   }
 
 }

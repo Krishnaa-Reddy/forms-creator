@@ -1,0 +1,79 @@
+<section class="bg-blue-100 p-4 space-y-4">
+  <div class="mx-20 border-2 p-8 rounded-lg border-gray-300">
+    <h2 class="text-2xl font-bold m-0">Button Generator</h2>
+    <h6 class="text-sm mb-8">
+      Generate a custom button component with Tailwind CSS classes.
+    </h6>
+
+    <mat-grid-list cols="2" gutterSize="16px" rowHeight="90">
+      <mat-grid-tile>
+        <mat-form-field appearance="outline">
+          <mat-label>Button Text</mat-label>
+          <input matInput [(ngModel)]="buttonText" />
+        </mat-form-field>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <mat-form-field appearance="outline">
+          <mat-label>Color</mat-label>
+          <mat-select [(ngModel)]="buttonColor">
+            <mat-option value="primary">Primary</mat-option>
+            <mat-option value="accent">Accent</mat-option>
+            <mat-option value="warn">Warn</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <mat-form-field appearance="outline">
+          <mat-label>Appearance</mat-label>
+          <mat-select [(ngModel)]="appearance">
+            <mat-option value="raised">Raised</mat-option>
+            <mat-option value="stroked">Stroked</mat-option>
+            <mat-option value="flat">Flat</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-grid-tile>
+      <mat-grid-tile>
+        <mat-form-field appearance="outline">
+          <mat-label>Tailwind Classes</mat-label>
+          <input
+            matInput
+            [(ngModel)]="tailwindClasses"
+            placeholder="e.g. px-4 py-2 rounded bg-blue-500"
+          />
+        </mat-form-field>
+      </mat-grid-tile>
+    </mat-grid-list>
+
+    <mat-checkbox [(ngModel)]="includeIcon">Include Icon</mat-checkbox>
+    <div class="p-4 flex flex-col flex-wrap gap-2">
+      <div class="flex items-center justify-end space-x-4">
+        <button
+        mat-flat-button
+        (click)="downloadFullComponent()"
+      >
+        <mat-icon>download</mat-icon>
+        Download
+      </button>
+        <button
+          mat-icon-button
+          (cdkCopyToClipboardCopied)="isCopied($event)"
+          [cdkCopyToClipboard]="fullComponentCode"
+          [cdkCopyToClipboardAttempts]="2"
+        >
+
+          <mat-icon>content_copy</mat-icon>
+        </button>
+      </div>
+
+      <div class="bg-gray-100 overflow-auto max-h-screen w-full text-xs">
+        <pre class="!m-0">
+          <code #codeElement class="language-typescript">
+            {{ fullComponentCode }}
+          </code>
+        </pre>
+      </div>
+
+
+    </div>
+  </div>
+</section>

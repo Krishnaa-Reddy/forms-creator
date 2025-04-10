@@ -1,6 +1,26 @@
 @use "tailwindcss";
+@use "@angular/material" as mat;
 
 :root {
+
+    --fallback-font-stack: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+    --inter-tight-font-stack: "Inter Tight", var(--fallback-font-stack);
+
+    --mat-font-family: var(--inter-tight-font-stack);
+
+    @include mat.card-overrides((
+        title-text-font: var(--mat-font-family),
+      ));
+
+      @include mat.list-overrides((
+        list-item-label-text-font: var(--mat-font-family),
+  ));
+
+      h2 {
+        font-family: var(--mat-font-family);
+      }
+
     .mat-mdc-icon-button {
         display: flex;
     }
